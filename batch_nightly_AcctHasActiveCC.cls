@@ -4,7 +4,7 @@ Related Test: batch_nightly_AcctHasActiveCC_Test
 
 Business Purpose: Update "Has an Active CC" field on the Account
 
-
+test
 */
 global without sharing class batch_nightly_AcctHasActiveCC implements Database.Batchable<sObject> {
     
