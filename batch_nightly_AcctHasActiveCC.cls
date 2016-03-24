@@ -4,7 +4,6 @@ Related Test: batch_nightly_AcctHasActiveCC_Test
 
 Business Purpose: Update "Has an Active CC" field on the Account
 
-test
 */
 global without sharing class batch_nightly_AcctHasActiveCC implements Database.Batchable<sObject> {
     
@@ -24,28 +23,23 @@ global without sharing class batch_nightly_AcctHasActiveCC implements Database.B
     // Execute
     global void execute(Database.BatchableContext BC, List<Account> scope){
         
-        Map<Id,Account> updateAccounts = new Map<Id,Account>();
+        List<Account> updateAccounts = new List<Account>();
 
         for(Account acct : scope) {
+            acct.Has_an_Active_CC__c = false;	
+	    acct.HasActiveCC_Updated__c = system.now();
+	    
             for(LP__c lp : acct.Loan_Programs__r) {
-                if(!updateAccounts.containsKey(acct.Id)) {
-                    
-                    acct.HasActiveCC_Updated__c = system.now();
-
-                    if(lp.Nbr_CCs_Active__c > 0) {
-                        acct.Has_an_Active_CC__c = true;
-                    }
-                    else {
-                        acct.Has_an_Active_CC__c = false;
-                    }
-
-                    updateAccounts.put(acct.Id, acct);
+                if(lp.Nbr_CCs_Active__c > 0) {
+                    acct.Has_an_Active_CC__c = true;
+                    break;
                 }
             }
+            updateAccounts.add(acct);
         }
 
-        if(!updateAccounts.values().isEmpty()) {
-            database.update(updateAccounts.values(),false);
+        if(!updateAccounts.isEmpty()) {
+            database.update(updateAccounts,false);
         }
 		
         system.debug('****************************** end batch_nightly_AcctHasActiveCC *********************************');
